@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { 
   Plus, 
   Pencil, 
@@ -15,12 +14,6 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
-// Configure Axios
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-const API = axios.create({
-  baseURL: `${BACKEND_URL}/api`
-});
-
 // --- Components ---
 
 const SplashScreen = ({ onFinish }) => {
@@ -28,17 +21,11 @@ const SplashScreen = ({ onFinish }) => {
   const [opacity, setOpacity] = useState(1);
 
   useEffect(() => {
-    // Start fade out after 0.8s
-    const timer1 = setTimeout(() => {
-      setOpacity(0);
-    }, 800);
-
-    // Remove from DOM after fade out completes (e.g. 0.2s transition)
+    const timer1 = setTimeout(() => setOpacity(0), 800);
     const timer2 = setTimeout(() => {
       setIsVisible(false);
       onFinish();
     }, 1000);
-
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
@@ -132,7 +119,7 @@ const Dialog = ({ isOpen, onClose, title, children }) => {
       <div className="relative w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <button onClick={onClose} className="rounded-full p-1 hover:bg-gray-100 hover:scale-110 transition-transform">
+          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-gray-100 hover:scale-110 transition-transform">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -146,11 +133,9 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
   const [propertyLink, setPropertyLink] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Helper to generate final text
   const getFinalText = () => {
     let finalText = template.content.replace(/\[Nombre_Ejecutivo\]/g, executiveName);
     if (template.content.includes('[Input_Para_Link_Propiedad]')) {
-        // If empty, just leave placeholder for copy/preview, but warn on send
         finalText = finalText.replace(/\[Input_Para_Link_Propiedad\]/g, propertyLink || '[Link Propiedad]');
     }
     return finalText;
@@ -161,24 +146,19 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
       toast.error('Por favor ingresa el número del cliente primero');
       return;
     }
-
     if (template.content.includes('[Input_Para_Link_Propiedad]') && !propertyLink) {
         toast.error('Por favor ingresa el link de la propiedad');
         return;
     }
     
-    // Smart Number Logic
     const rawNumber = clientNumber.trim();
     const startsWithPlus = rawNumber.startsWith('+');
-    let cleanDigits = rawNumber.replace(/\D/g, ''); // Remove everything except digits
-    
+    let cleanDigits = rawNumber.replace(/\D/g, ''); 
     let finalNumber = cleanDigits;
     
     if (!startsWithPlus) {
-        // If NO starts with +, prepend 56
         finalNumber = '56' + cleanDigits;
     }
-    // If starts with +, respect it (use cleanDigits which already stripped the + but keeps the country code digits)
     
     const text = getFinalText();
     const url = `https://wa.me/${finalNumber}?text=${encodeURIComponent(text)}`;
@@ -276,50 +256,41 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
 };
 
 function App() {
-  // State
-  // Default value "Benjamín Llancapan" if not in localStorage
+  // --- Estados con Memoria Local (Local Storage) ---
   const [executiveName, setExecutiveName] = useState(() => localStorage.getItem('executiveName') || 'Benjamín Llancapan');
-  const [clientNumber, setClientNumber] = useState('');
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
+  const [clientNumber, setClientNumber] = useState(() => localStorage.getItem('clientNumber') || '');
   
-  // Modal State
+  const [templates, setTemplates] = useState(() => {
+    const saved = localStorage.getItem('santamaria_templates');
+    if (saved) return JSON.parse(saved);
+    // Plantilla por defecto si es la primera vez que entra
+    return [
+      { 
+        id: '1', 
+        title: 'Ejemplo de Saludo Inicial', 
+        category: 'Correos', 
+        content: 'Hola, soy [Nombre_Ejecutivo] de la corredora Santamaría. Me pongo en contacto contigo por esta propiedad: [Input_Para_Link_Propiedad]. ¿Te gustaría que coordinemos una visita para que la conozcas?' 
+      }
+    ];
+  });
+
+  const [showContent, setShowContent] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTemplate, setCurrentTemplate] = useState(null); 
   const [formData, setFormData] = useState({ title: '', category: 'Correos', content: '' });
 
-  // Fetch Templates
-  const fetchTemplates = async () => {
-    try {
-      const res = await API.get('/templates');
-      setTemplates(res.data);
-    } catch (error) {
-      console.error('Error fetching templates:', error);
-      toast.error('Error al cargar plantillas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
+  // Guardar automáticamente cada vez que haya un cambio
   useEffect(() => {
     localStorage.setItem('executiveName', executiveName);
-  }, [executiveName]);
+    localStorage.setItem('clientNumber', clientNumber);
+    localStorage.setItem('santamaria_templates', JSON.stringify(templates));
+  }, [executiveName, clientNumber, templates]);
 
-  // CRUD Handlers
-  const handleDelete = async (id) => {
+  // CRUD Handlers (Ahora 100% Locales)
+  const handleDelete = (id) => {
     if (window.confirm('¿Estás seguro de eliminar esta plantilla?')) {
-      try {
-        await API.delete(`/templates/${id}`);
-        toast.success('Plantilla eliminada');
-        fetchTemplates();
-      } catch (error) {
-        toast.error('Error al eliminar');
-      }
+      setTemplates(templates.filter(t => t.id !== id));
+      toast.success('Plantilla eliminada');
     }
   };
 
@@ -339,24 +310,19 @@ function App() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      if (currentTemplate) {
-        await API.put(`/templates/${currentTemplate.id}`, formData);
-        toast.success('Plantilla actualizada');
-      } else {
-        await API.post('/templates', formData);
-        toast.success('Plantilla creada');
-      }
-      setIsModalOpen(false);
-      fetchTemplates();
-    } catch (error) {
-      toast.error('Error al guardar');
+    if (currentTemplate) {
+      setTemplates(templates.map(t => t.id === currentTemplate.id ? { ...t, ...formData } : t));
+      toast.success('Plantilla actualizada');
+    } else {
+      const newTemplate = { id: Date.now().toString(), ...formData };
+      setTemplates([...templates, newTemplate]);
+      toast.success('Plantilla creada');
     }
+    setIsModalOpen(false);
   };
 
-  // Group Templates
   const groupedTemplates = {
     'Respuesta Leads Correos': templates.filter(t => t.category === 'Correos'),
     'Llamadas que no Contestaron': templates.filter(t => t.category === 'Llamadas'),
@@ -371,7 +337,6 @@ function App() {
         <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 flex flex-col animate-in fade-in duration-1000">
           <Toaster position="top-right" richColors />
           
-          {/* Header */}
           <header className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm backdrop-blur-md bg-white/90">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
               <div className="flex items-center gap-6">
@@ -395,7 +360,6 @@ function App() {
 
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 flex-grow">
             
-            {/* Global Inputs Section */}
             <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10 relative overflow-hidden group hover:shadow-lg transition-shadow duration-500">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600"></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
@@ -419,7 +383,7 @@ function App() {
                   </Label>
                   <Input 
                     type="text" 
-                    placeholder="Ej. +56 9 1234 5678 o 912345678" 
+                    placeholder="Ej. +56 9 1234 5678" 
                     value={clientNumber}
                     onChange={(e) => setClientNumber(e.target.value)}
                     className="text-xl py-6 border-0 border-b-2 border-gray-200 rounded-none px-0 focus:ring-0 focus:border-orange-500 bg-transparent placeholder:text-gray-300 transition-colors font-mono font-medium"
@@ -431,39 +395,31 @@ function App() {
               </div>
             </section>
 
-            {/* Templates Grid */}
-            {loading ? (
-              <div className="flex justify-center py-20">
-                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-              </div>
-            ) : (
-              <div className="space-y-16">
-                {Object.entries(groupedTemplates).map(([category, items]) => (
-                  items.length > 0 && (
-                    <div key={category} className="space-y-6">
-                      <div className="flex items-center gap-4">
-                        <div className="h-8 w-1.5 bg-orange-500 rounded-full"></div>
-                        <h2 className="text-2xl font-bold text-gray-800">{category}</h2>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {items.map(template => (
-                          <TemplateCard 
-                            key={template.id} 
-                            template={template} 
-                            executiveName={executiveName}
-                            clientNumber={clientNumber}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                          />
-                        ))}
-                      </div>
+            <div className="space-y-16">
+              {Object.entries(groupedTemplates).map(([category, items]) => (
+                items.length > 0 && (
+                  <div key={category} className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className="h-8 w-1.5 bg-orange-500 rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-gray-800">{category}</h2>
                     </div>
-                  )
-                ))}
-              </div>
-            )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {items.map(template => (
+                        <TemplateCard 
+                          key={template.id} 
+                          template={template} 
+                          executiveName={executiveName}
+                          clientNumber={clientNumber}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              ))}
+            </div>
 
-            {/* Floating Action Button for Mobile */}
             <button 
               onClick={handleCreate}
               className="fixed bottom-24 right-6 h-14 w-14 bg-orange-500 text-white rounded-full shadow-orange-500/30 shadow-2xl flex items-center justify-center sm:hidden active:scale-95 transition-transform z-40 hover:scale-110"
@@ -472,14 +428,12 @@ function App() {
             </button>
           </main>
 
-          {/* Footer */}
           <footer className="py-8 text-center">
             <p className="text-xs text-gray-300 font-medium tracking-widest">
               by: Bnj
             </p>
           </footer>
 
-          {/* Edit/Create Modal */}
           <Dialog 
             isOpen={isModalOpen} 
             onClose={() => setIsModalOpen(false)} 
