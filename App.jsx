@@ -31,14 +31,14 @@ const SplashScreen = ({ onFinish }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-500 ease-out"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-50 transition-opacity duration-700 ease-out"
       style={{ opacity: opacity }}
     >
-      <div className="text-center space-y-2 animate-in zoom-in-95 duration-500">
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-widest text-orange-500">
+      <div className="text-center space-y-3 animate-in zoom-in-95 duration-700">
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 drop-shadow-sm">
           SISTEMA DE ENVÍOS
         </h1>
-        <p className="text-sm text-gray-400 font-medium tracking-widest uppercase">
+        <p className="text-sm text-gray-400 font-bold tracking-[0.3em] uppercase">
           By: bnj
         </p>
       </div>
@@ -48,21 +48,21 @@ const SplashScreen = ({ onFinish }) => {
 
 const Button = ({ children, variant = 'primary', size = 'default', className = '', ...props }) => {
   const variants = {
-    primary: 'bg-orange-500 hover:bg-orange-600 text-white shadow-md',
-    secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200',
-    success: 'bg-green-500 text-white shadow-md hover:bg-green-600'
+    primary: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 border border-orange-400/20',
+    secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm hover:shadow-md',
+    success: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50 border border-green-400/20'
   };
   
   const sizes = {
     sm: 'px-3 py-1.5 text-sm',
-    default: 'px-4 py-2',
+    default: 'px-4 py-2.5',
     lg: 'px-6 py-3 text-lg'
   };
 
   return (
     <button 
       className={`
-        inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 ease-out active:scale-95 disabled:opacity-50 disabled:pointer-events-none hover:scale-[1.02]
+        inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300 ease-out active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none hover:-translate-y-0.5
         ${variants[variant]} 
         ${sizes[size]} 
         ${className}
@@ -77,7 +77,7 @@ const Button = ({ children, variant = 'primary', size = 'default', className = '
 const Input = ({ className = '', ...props }) => (
   <input 
     className={`
-      flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-shadow
+      flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/15 focus-visible:border-orange-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300
       ${className}
     `}
     {...props}
@@ -86,7 +86,7 @@ const Input = ({ className = '', ...props }) => (
 
 const Label = ({ children, className = '', ...props }) => (
   <label 
-    className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
+    className={`text-xs font-bold uppercase tracking-wider text-gray-500 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
     {...props}
   >
     {children}
@@ -95,8 +95,8 @@ const Label = ({ children, className = '', ...props }) => (
 
 const Card = ({ children, className = '' }) => (
   <div className={`
-    rounded-2xl border border-gray-200 bg-white text-gray-950 shadow-sm transition-all duration-300 ease-out 
-    hover:-translate-y-1 hover:shadow-xl
+    rounded-[1.5rem] border border-gray-100 bg-white text-gray-950 shadow-md transition-all duration-400 ease-out 
+    hover:-translate-y-1.5 hover:shadow-xl hover:border-orange-100
     ${className}
   `}>
     {children}
@@ -150,18 +150,20 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
   const needsPropertyLink = template.content.includes('[Input_Para_Link_Propiedad]');
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden group border-l-4 border-l-orange-500">
-      <div className="p-6 flex-1 space-y-4">
+    <Card className="flex flex-col h-full overflow-hidden group border-l-[6px] border-l-orange-500 relative">
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-orange-50 to-transparent opacity-50 rounded-bl-full pointer-events-none"></div>
+      
+      <div className="p-7 flex-1 space-y-5 relative z-10">
         <div className="flex items-start justify-between">
-          <h3 className="font-bold text-lg text-gray-900 line-clamp-2" title={template.title}>
+          <h3 className="font-extrabold text-lg text-gray-800 line-clamp-2 leading-tight" title={template.title}>
             {template.title}
           </h3>
         </div>
         
-        <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-600 leading-relaxed min-h-[100px] whitespace-pre-wrap border border-gray-100 shadow-inner">
+        <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-5 rounded-2xl text-sm text-gray-600 leading-relaxed min-h-[120px] whitespace-pre-wrap border border-gray-100 shadow-inner">
           {template.content.split(/(\[Input_Para_Link_Propiedad\])/g).map((part, i) => (
             part === '[Input_Para_Link_Propiedad]' ? (
-              <span key={i} className="text-orange-600 font-bold bg-orange-100/50 px-1 rounded mx-1 break-all">
+              <span key={i} className="text-orange-600 font-bold bg-orange-100/50 px-1.5 py-0.5 rounded-md mx-1 break-all border border-orange-200/50 shadow-sm">
                 {propertyLink || '[Link Propiedad]'}
               </span>
             ) : (
@@ -171,35 +173,35 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
         </div>
 
         {needsPropertyLink && (
-          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
-            <Label className="text-xs text-gray-500 uppercase tracking-wider font-bold">Link Propiedad</Label>
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 pt-2">
+            <Label>Link de la Propiedad</Label>
             <div className="relative group/input">
-              <ExternalLink className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-focus-within/input:text-orange-500 transition-colors" />
+              <ExternalLink className="absolute left-3.5 top-3 h-4 w-4 text-orange-400 group-focus-within/input:text-orange-600 transition-colors" />
               <Input 
                 value={propertyLink}
                 onChange={(e) => setPropertyLink(e.target.value)}
                 placeholder="Pegar enlace aquí..."
-                className="pl-9 bg-orange-50/30 border-orange-100 focus:border-orange-500 transition-all"
+                className="pl-10 bg-orange-50/20 border-orange-100 focus:border-orange-500 focus:bg-white transition-all shadow-sm"
               />
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-4 bg-gray-50 border-t border-gray-100 grid grid-cols-1 gap-3">
-        <Button onClick={handleSendWhatsApp} className="w-full shadow-orange-200/50 hover:shadow-orange-300/50">
-          <MessageCircle className="h-4 w-4 mr-2" />
+      <div className="p-5 bg-slate-50 border-t border-gray-100 grid grid-cols-1 gap-3 relative z-10">
+        <Button onClick={handleSendWhatsApp} className="w-full">
+          <MessageCircle className="h-5 w-5 mr-2" />
           Enviar por WhatsApp
         </Button>
         <Button 
             variant={isCopied ? "success" : "secondary"} 
             onClick={handleCopy} 
-            className="w-full transition-all duration-300"
+            className="w-full"
         >
           {isCopied ? (
             <>
                 <Check className="h-4 w-4 mr-2" />
-                ¡Copiado!
+                ¡Copiado al portapapeles!
             </>
           ) : (
             <>
@@ -224,6 +226,12 @@ function App() {
       title: 'Presentación',
       category: 'Correos',
       content: `Hola! ¿Cómo está? Soy [Nombre_Ejecutivo], de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
+    },
+    {
+      id: '7',
+      title: 'Presentación Ana Victoria',
+      category: 'Correos',
+      content: `Buenas tardes, mi nombre es Ana Victoria Diaz, encargada del área de Arriendos de la Corredora SANTAMARÍA.\n\nA continuación, le enviaré el detalle de la propiedad por la que consulta.`
     },
     {
       id: '2',
@@ -287,10 +295,10 @@ Sin ese mensaje, la visita no se considera confirmada.`
       <SplashScreen onFinish={() => setShowContent(true)} />
       
       {showContent && (
-        <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 flex flex-col animate-in fade-in duration-1000">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50/30 font-sans text-gray-900 flex flex-col animate-in fade-in duration-1000">
           <Toaster position="top-right" richColors />
           
-          <header className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm backdrop-blur-md bg-white/90">
+          <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-orange-100 shadow-sm transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <img 
@@ -299,33 +307,35 @@ Sin ese mensaje, la visita no se considera confirmada.`
                   className="h-16 w-auto object-contain"
                 />
                 <div className="h-10 w-px bg-gray-200 hidden sm:block"></div>
-                <h1 className="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">
+                <h1 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500 tracking-tight hidden sm:block">
                   Sistema de Envíos
                 </h1>
               </div>
             </div>
           </header>
 
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 flex-grow">
-            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10 relative overflow-hidden group hover:shadow-lg transition-shadow duration-500">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 flex-grow">
+            <section className="bg-white rounded-[2rem] shadow-xl shadow-orange-900/5 border border-white p-8 md:p-12 relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600"></div>
+              <div className="absolute -right-20 -top-20 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
                 <div className="space-y-4">
-                  <Label className="text-gray-500 uppercase tracking-widest text-xs font-bold flex items-center gap-2">
-                    <User className="h-4 w-4 text-orange-500" />
+                  <Label className="flex items-center gap-2 text-orange-600">
+                    <User className="h-4 w-4" />
                     Nombre del Ejecutivo
                   </Label>
                   <Input 
                     placeholder="Ej. Benjamín Llancapan" 
                     value={executiveName}
                     onChange={(e) => setExecutiveName(e.target.value)}
-                    className="text-xl py-6 border-0 border-b-2 border-gray-200 rounded-none px-0 focus:ring-0 focus:border-orange-500 bg-transparent placeholder:text-gray-300 transition-colors font-medium"
+                    className="text-2xl py-7 border-0 border-b-2 border-gray-100 rounded-none px-0 focus:ring-0 focus:border-orange-500 bg-transparent placeholder:text-gray-300 transition-colors font-semibold"
                   />
                 </div>
                 
                 <div className="space-y-4">
-                  <Label className="text-gray-500 uppercase tracking-widest text-xs font-bold flex items-center gap-2">
-                    <Smartphone className="h-4 w-4 text-orange-500" />
+                  <Label className="flex items-center gap-2 text-orange-600">
+                    <Smartphone className="h-4 w-4" />
                     Celular del Cliente
                   </Label>
                   <Input 
@@ -333,19 +343,19 @@ Sin ese mensaje, la visita no se considera confirmada.`
                     placeholder="Ej. +56 9 1234 5678" 
                     value={clientNumber}
                     onChange={(e) => setClientNumber(e.target.value)}
-                    className="text-xl py-6 border-0 border-b-2 border-gray-200 rounded-none px-0 focus:ring-0 focus:border-orange-500 bg-transparent placeholder:text-gray-300 transition-colors font-mono font-medium"
+                    className="text-2xl py-7 border-0 border-b-2 border-gray-100 rounded-none px-0 focus:ring-0 focus:border-orange-500 bg-transparent placeholder:text-gray-300 transition-colors font-mono font-semibold"
                   />
                 </div>
               </div>
             </section>
 
-            <div className="space-y-16">
+            <div className="space-y-20">
               {Object.entries(groupedTemplates).map(([category, items]) => (
                 items.length > 0 && (
-                  <div key={category} className="space-y-6">
+                  <div key={category} className="space-y-8">
                     <div className="flex items-center gap-4">
-                      <div className="h-8 w-1.5 bg-orange-500 rounded-full"></div>
-                      <h2 className="text-2xl font-bold text-gray-800">{category}</h2>
+                      <div className="h-10 w-2 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full shadow-sm"></div>
+                      <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight">{category}</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {items.map(template => (
@@ -363,9 +373,11 @@ Sin ese mensaje, la visita no se considera confirmada.`
             </div>
           </main>
 
-          <footer className="py-8 text-center">
-            <p className="text-xs text-gray-300 font-medium tracking-widest">
-              by: Bnj
+          <footer className="py-10 text-center relative z-10">
+            <p className="text-sm text-gray-400 font-bold tracking-widest uppercase flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-gray-300"></span>
+              Creado por Bnj
+              <span className="w-8 h-px bg-gray-300"></span>
             </p>
           </footer>
         </div>
