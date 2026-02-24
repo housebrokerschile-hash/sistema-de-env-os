@@ -120,10 +120,6 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
       toast.error('Por favor ingresa el número del cliente primero');
       return;
     }
-    if (template.content.includes('[Input_Para_Link_Propiedad]') && !propertyLink) {
-        toast.error('Por favor ingresa el link de la propiedad');
-        return;
-    }
     
     const rawNumber = clientNumber.trim();
     const startsWithPlus = rawNumber.startsWith('+');
@@ -140,10 +136,6 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
   };
 
   const handleCopy = async () => {
-    if (template.content.includes('[Input_Para_Link_Propiedad]') && !propertyLink) {
-        toast.error('Por favor ingresa el link de la propiedad para copiar el mensaje completo');
-        return;
-    }
     const text = getFinalText();
     try {
       await navigator.clipboard.writeText(text);
@@ -222,12 +214,10 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
 };
 
 function App() {
-  // --- Estados con Memoria Local (Empiezan en blanco) ---
   const [executiveName, setExecutiveName] = useState(() => localStorage.getItem('executiveName') || '');
   const [clientNumber, setClientNumber] = useState(() => localStorage.getItem('clientNumber') || '');
   const [showContent, setShowContent] = useState(false);
 
-  // --- Plantillas Fijas (Hardcodeadas) ---
   const templates = [
     {
       id: '1',
@@ -251,11 +241,11 @@ function App() {
       id: '4',
       title: 'Llamadas fds',
       category: 'Llamadas',
-      content: `Hola! mi nombre es  [Nombre_Ejecutivo], asistente de Arriendos de SANTAMARIA. Recibí una llamada durante el fin de semana y no la pude contestar, en que lo puedo ayudar?`
+      content: `Hola! mi nombre es [Nombre_Ejecutivo], asistente de Arriendos de SANTAMARIA. Recibí una llamada durante el fin de semana y no la pude contestar, en que lo puedo ayudar?`
     },
     {
       id: '5',
-      title: 'Esta propiedad ya no se encuentra disponible',
+      title: 'Propiedad no disponible',
       category: 'Otros',
       content: `Hola! Lamentablemente esa propiedad ya no se encuentra disponible. Sin embargo, en los siguientes enlaces puedes revisar otras opciones actuales. Para consultar disponibilidad, me puedes escribir por este mismo medio:
 
@@ -268,10 +258,19 @@ https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=
 
 ▪️ *2 Dormitorios:*
 https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=0&Ubz_Id=0&Po_R_Id=8&Pr_Tipo_Id=8&Pr_Tipo_Operacion=2&Pr_Valor_Desde=0&Pr_Valor_Hasta=0&Pr_Piezas_Desde=2`
+    },
+    {
+      id: '6',
+      title: 'Confirmación de Visita',
+      category: 'Otros',
+      content: `*IMPORTANTE:*
+
+Su visita queda agendada únicamente cuando se le envía la dirección exacta y el nombre de la ejecutiva que lo atenderá. 
+
+Sin ese mensaje, la visita no se considera confirmada.`
     }
   ];
 
-  // Guardar automáticamente cada vez que haya un cambio en los inputs
   useEffect(() => {
     localStorage.setItem('executiveName', executiveName);
     localStorage.setItem('clientNumber', clientNumber);
@@ -295,9 +294,9 @@ https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <img 
-                  src="https://customer-assets.emergentagent.com/job_real-estate-crm-app/artifacts/5k6bllh3_Captura%20de%20pantalla%202026-02-23%20a%20la%28s%29%2015.46.27.png" 
+                  src="https://raw.githubusercontent.com/bnj-1/Santamaria-envios/main/public/favicon.png" 
                   alt="Logo Santamaría" 
-                  className="h-16 w-auto object-contain"
+                  className="h-16 w-16 object-contain"
                 />
                 <div className="h-10 w-px bg-gray-200 hidden sm:block"></div>
                 <h1 className="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">
@@ -308,7 +307,6 @@ https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=
           </header>
 
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 flex-grow">
-            
             <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10 relative overflow-hidden group hover:shadow-lg transition-shadow duration-500">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600"></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
@@ -337,9 +335,6 @@ https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=
                     onChange={(e) => setClientNumber(e.target.value)}
                     className="text-xl py-6 border-0 border-b-2 border-gray-200 rounded-none px-0 focus:ring-0 focus:border-orange-500 bg-transparent placeholder:text-gray-300 transition-colors font-mono font-medium"
                   />
-                  <p className="text-xs text-orange-600/80 font-medium">
-                    * Si no comienza con "+", se antepondrá "56" automáticamente.
-                  </p>
                 </div>
               </div>
             </section>
