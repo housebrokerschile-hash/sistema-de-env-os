@@ -294,9 +294,9 @@ Sin ese mensaje, la visita no se considera confirmada.`
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <img 
-                  src="https://raw.githubusercontent.com/bnj-1/Santamaria-envios/main/public/favicon.png" 
+                  src="https://customer-assets.emergentagent.com/job_real-estate-crm-app/artifacts/5k6bllh3_Captura%20de%20pantalla%202026-02-23%20a%20la%28s%29%2015.46.27.png" 
                   alt="Logo Santamaría" 
-                  className="h-16 w-16 object-contain"
+                  className="h-16 w-auto object-contain"
                 />
                 <div className="h-10 w-px bg-gray-200 hidden sm:block"></div>
                 <h1 className="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">
