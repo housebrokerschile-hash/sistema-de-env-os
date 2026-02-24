@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
   MessageCircle, 
-  Save,
-  X,
   Smartphone,
   User,
   ExternalLink,
@@ -55,17 +50,13 @@ const Button = ({ children, variant = 'primary', size = 'default', className = '
   const variants = {
     primary: 'bg-orange-500 hover:bg-orange-600 text-white shadow-md',
     secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200',
-    ghost: 'hover:bg-gray-100 text-gray-600',
-    destructive: 'bg-red-50 text-red-600 hover:bg-red-100',
-    outline: 'border-2 border-orange-500 text-orange-500 hover:bg-orange-50',
     success: 'bg-green-500 text-white shadow-md hover:bg-green-600'
   };
   
   const sizes = {
     sm: 'px-3 py-1.5 text-sm',
     default: 'px-4 py-2',
-    lg: 'px-6 py-3 text-lg',
-    icon: 'p-2'
+    lg: 'px-6 py-3 text-lg'
   };
 
   return (
@@ -112,29 +103,12 @@ const Card = ({ children, className = '' }) => (
   </div>
 );
 
-const Dialog = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-gray-100 hover:scale-110 transition-transform">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-};
-
-const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete }) => {
+const TemplateCard = ({ template, executiveName, clientNumber }) => {
   const [propertyLink, setPropertyLink] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
   const getFinalText = () => {
-    let finalText = template.content.replace(/\[Nombre_Ejecutivo\]/g, executiveName);
+    let finalText = template.content.replace(/\[Nombre_Ejecutivo\]/g, executiveName || '[Nombre]');
     if (template.content.includes('[Input_Para_Link_Propiedad]')) {
         finalText = finalText.replace(/\[Input_Para_Link_Propiedad\]/g, propertyLink || '[Link Propiedad]');
     }
@@ -187,23 +161,15 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
     <Card className="flex flex-col h-full overflow-hidden group border-l-4 border-l-orange-500">
       <div className="p-6 flex-1 space-y-4">
         <div className="flex items-start justify-between">
-          <h3 className="font-bold text-lg text-gray-900 line-clamp-1" title={template.title}>
+          <h3 className="font-bold text-lg text-gray-900 line-clamp-2" title={template.title}>
             {template.title}
           </h3>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button variant="ghost" size="icon" onClick={() => onEdit(template)} className="h-8 w-8 hover:bg-orange-100 hover:text-orange-600">
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => onDelete(template.id)} className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
         
         <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-600 leading-relaxed min-h-[100px] whitespace-pre-wrap border border-gray-100 shadow-inner">
           {template.content.split(/(\[Input_Para_Link_Propiedad\])/g).map((part, i) => (
             part === '[Input_Para_Link_Propiedad]' ? (
-              <span key={i} className="text-orange-600 font-bold bg-orange-100/50 px-1 rounded mx-1">
+              <span key={i} className="text-orange-600 font-bold bg-orange-100/50 px-1 rounded mx-1 break-all">
                 {propertyLink || '[Link Propiedad]'}
               </span>
             ) : (
@@ -256,72 +222,60 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
 };
 
 function App() {
-  // --- Estados con Memoria Local (Local Storage) ---
-  const [executiveName, setExecutiveName] = useState(() => localStorage.getItem('executiveName') || 'Benjamín Llancapan');
+  // --- Estados con Memoria Local (Empiezan en blanco) ---
+  const [executiveName, setExecutiveName] = useState(() => localStorage.getItem('executiveName') || '');
   const [clientNumber, setClientNumber] = useState(() => localStorage.getItem('clientNumber') || '');
-  
-  const [templates, setTemplates] = useState(() => {
-    const saved = localStorage.getItem('santamaria_templates');
-    if (saved) return JSON.parse(saved);
-    // Plantilla por defecto si es la primera vez que entra
-    return [
-      { 
-        id: '1', 
-        title: 'Ejemplo de Saludo Inicial', 
-        category: 'Correos', 
-        content: 'Hola, soy [Nombre_Ejecutivo] de la corredora Santamaría. Me pongo en contacto contigo por esta propiedad: [Input_Para_Link_Propiedad]. ¿Te gustaría que coordinemos una visita para que la conozcas?' 
-      }
-    ];
-  });
-
   const [showContent, setShowContent] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentTemplate, setCurrentTemplate] = useState(null); 
-  const [formData, setFormData] = useState({ title: '', category: 'Correos', content: '' });
 
-  // Guardar automáticamente cada vez que haya un cambio
+  // --- Plantillas Fijas (Hardcodeadas) ---
+  const templates = [
+    {
+      id: '1',
+      title: 'Presentación',
+      category: 'Correos',
+      content: `Hola! ¿Cómo está? Soy [Nombre_Ejecutivo], de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
+    },
+    {
+      id: '2',
+      title: 'Coordinación y Requisitos',
+      category: 'Correos',
+      content: `Si realmente te interesa, me avisas para coordinar una visita! Recuerda que para arrendar debes tener un ingreso 3 veces mayor al valor de arriendo (Puedes complementar) y no debes estar en DICOM`
+    },
+    {
+      id: '3',
+      title: 'Llamadas no contestadas',
+      category: 'Llamadas',
+      content: `Hola! mi nombre es [Nombre_Ejecutivo], asistente de Arriendos de la corredora SANTAMARIA. Recibí una llamada y no la pude contestar, en que lo puedo ayudar?`
+    },
+    {
+      id: '4',
+      title: 'Llamadas fds',
+      category: 'Llamadas',
+      content: `Hola! mi nombre es  [Nombre_Ejecutivo], asistente de Arriendos de SANTAMARIA. Recibí una llamada durante el fin de semana y no la pude contestar, en que lo puedo ayudar?`
+    },
+    {
+      id: '5',
+      title: 'Esta propiedad ya no se encuentra disponible',
+      category: 'Otros',
+      content: `Hola! Lamentablemente esa propiedad ya no se encuentra disponible. Sin embargo, en los siguientes enlaces puedes revisar otras opciones actuales. Para consultar disponibilidad, me puedes escribir por este mismo medio:
+
+*ARRIENDOS HASTA $350.000:*
+https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=0&Ubz_Id=0&Po_R_Id=8&Pr_Tipo_Id=8&Pr_Tipo_Operacion=2&Pr_Valor_Desde=0&Pr_Valor_Hasta=350000&Pr_Piezas_Desde=0
+
+*MENORES A $450.000*
+▪️ *1 Dormitorio:*
+https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=0&Po_R_Id=8&Pr_Tipo_Id=8&Pr_Tipo_Operacion=2&Pr_Valor_Desde=0&Pr_Valor_Hasta=0&Pr_Piezas_Desde=1&Pr_Piezas_Hasta=1
+
+▪️ *2 Dormitorios:*
+https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=0&Ubz_Id=0&Po_R_Id=8&Pr_Tipo_Id=8&Pr_Tipo_Operacion=2&Pr_Valor_Desde=0&Pr_Valor_Hasta=0&Pr_Piezas_Desde=2`
+    }
+  ];
+
+  // Guardar automáticamente cada vez que haya un cambio en los inputs
   useEffect(() => {
     localStorage.setItem('executiveName', executiveName);
     localStorage.setItem('clientNumber', clientNumber);
-    localStorage.setItem('santamaria_templates', JSON.stringify(templates));
-  }, [executiveName, clientNumber, templates]);
-
-  // CRUD Handlers (Ahora 100% Locales)
-  const handleDelete = (id) => {
-    if (window.confirm('¿Estás seguro de eliminar esta plantilla?')) {
-      setTemplates(templates.filter(t => t.id !== id));
-      toast.success('Plantilla eliminada');
-    }
-  };
-
-  const handleEdit = (template) => {
-    setCurrentTemplate(template);
-    setFormData({ 
-      title: template.title, 
-      category: template.category, 
-      content: template.content 
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleCreate = () => {
-    setCurrentTemplate(null);
-    setFormData({ title: '', category: 'Correos', content: '' });
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (currentTemplate) {
-      setTemplates(templates.map(t => t.id === currentTemplate.id ? { ...t, ...formData } : t));
-      toast.success('Plantilla actualizada');
-    } else {
-      const newTemplate = { id: Date.now().toString(), ...formData };
-      setTemplates([...templates, newTemplate]);
-      toast.success('Plantilla creada');
-    }
-    setIsModalOpen(false);
-  };
+  }, [executiveName, clientNumber]);
 
   const groupedTemplates = {
     'Respuesta Leads Correos': templates.filter(t => t.category === 'Correos'),
@@ -350,11 +304,6 @@ function App() {
                   Sistema de Envíos
                 </h1>
               </div>
-              
-              <Button onClick={handleCreate} size="sm" variant="outline" className="hidden sm:flex rounded-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva Plantilla
-              </Button>
             </div>
           </header>
 
@@ -410,8 +359,6 @@ function App() {
                           template={template} 
                           executiveName={executiveName}
                           clientNumber={clientNumber}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
                         />
                       ))}
                     </div>
@@ -419,13 +366,6 @@ function App() {
                 )
               ))}
             </div>
-
-            <button 
-              onClick={handleCreate}
-              className="fixed bottom-24 right-6 h-14 w-14 bg-orange-500 text-white rounded-full shadow-orange-500/30 shadow-2xl flex items-center justify-center sm:hidden active:scale-95 transition-transform z-40 hover:scale-110"
-            >
-              <Plus className="h-6 w-6" />
-            </button>
           </main>
 
           <footer className="py-8 text-center">
@@ -433,61 +373,6 @@ function App() {
               by: Bnj
             </p>
           </footer>
-
-          <Dialog 
-            isOpen={isModalOpen} 
-            onClose={() => setIsModalOpen(false)} 
-            title={currentTemplate ? 'Editar Plantilla' : 'Nueva Plantilla'}
-          >
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label>Título</Label>
-                <Input 
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  placeholder="Ej. Saludo Inicial"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Categoría</Label>
-                <select 
-                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 transition-shadow"
-                  value={formData.category}
-                  onChange={(e) => setFormData({...formData, category: e.target.value})}
-                >
-                  <option value="Correos">Correos</option>
-                  <option value="Llamadas">Llamadas</option>
-                  <option value="Otros">Otros</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Mensaje</Label>
-                <div className="text-xs text-gray-500 mb-2 p-3 bg-orange-50/50 rounded-lg border border-orange-100">
-                  Variables: <span className="font-mono text-orange-600 font-bold">[Nombre_Ejecutivo]</span>, <span className="font-mono text-orange-600 font-bold">[Input_Para_Link_Propiedad]</span>
-                </div>
-                <textarea 
-                  required
-                  className="flex min-h-[120px] w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 transition-shadow resize-y"
-                  value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
-                  placeholder="Escribe tu mensaje aquí..."
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar
-                </Button>
-              </div>
-            </form>
-          </Dialog>
         </div>
       )}
     </>
