@@ -223,7 +223,7 @@ function App() {
   const templates = [
     {
       id: '1',
-      title: 'Presentación',
+      title: 'Editable',
       category: 'Correos',
       content: `Hola! ¿Cómo está? Soy [Nombre_Ejecutivo], de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
     },
