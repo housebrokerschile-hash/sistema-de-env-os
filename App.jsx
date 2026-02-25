@@ -9,6 +9,14 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
+// --- Helpers ---
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Buenos días';
+  if (hour < 20) return 'Buenas tardes';
+  return 'Buenas noches';
+};
+
 // --- Components ---
 
 const SplashScreen = ({ onFinish }) => {
@@ -108,7 +116,10 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
   const [isCopied, setIsCopied] = useState(false);
   
   const getFinalText = () => {
-    let finalText = template.content.replace(/\[Nombre_Ejecutivo\]/g, executiveName || '[Nombre]');
+    let finalText = template.content
+      .replace(/\[Nombre_Ejecutivo\]/g, executiveName || '[Nombre]')
+      .replace(/\[Saludo\]/g, getGreeting());
+      
     if (template.content.includes('[Input_Para_Link_Propiedad]')) {
         finalText = finalText.replace(/\[Input_Para_Link_Propiedad\]/g, propertyLink || '[Link Propiedad]');
     }
@@ -167,7 +178,7 @@ const TemplateCard = ({ template, executiveName, clientNumber }) => {
                 {propertyLink || '[Link Propiedad]'}
               </span>
             ) : (
-              <span key={i}>{part.replace(/\[Nombre_Ejecutivo\]/g, executiveName || '[Nombre]')}</span>
+              <span key={i}>{part.replace(/\[Nombre_Ejecutivo\]/g, executiveName || '[Nombre]').replace(/\[Saludo\]/g, getGreeting())}</span>
             )
           ))}
         </div>
@@ -225,13 +236,13 @@ function App() {
       id: '1',
       title: 'Editable',
       category: 'Correos',
-      content: `Hola! ¿Cómo está? Soy [Nombre_Ejecutivo], de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
+      content: `[Saludo]! ¿Cómo está? Soy [Nombre_Ejecutivo], de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
     },
     {
       id: '7',
       title: 'Presentación Ana Victoria',
       category: 'Correos',
-      content: `Buenas tardes, mi nombre es Ana Victoria Diaz, encargada del área de Arriendos de la Corredora SANTAMARÍA.\n\nA continuación, le enviaré el detalle de la propiedad por la que consulta.`
+      content: `[Saludo], mi nombre es Ana Victoria Diaz, encargada del área de Arriendos de la Corredora SANTAMARÍA.\n\nA continuación, le enviaré el detalle de la propiedad por la que consulta.`
     },
     {
       id: '2',
@@ -243,19 +254,19 @@ function App() {
       id: '3',
       title: 'Llamadas no contestadas',
       category: 'Llamadas',
-      content: `Hola! mi nombre es [Nombre_Ejecutivo], asistente de Arriendos de la corredora SANTAMARIA. Recibí una llamada y no la pude contestar, en que lo puedo ayudar?`
+      content: `[Saludo]! Mi nombre es [Nombre_Ejecutivo], asistente de Arriendos de la corredora SANTAMARIA. Recibí una llamada y no la pude contestar, en que lo puedo ayudar?`
     },
     {
       id: '4',
       title: 'Llamadas fds',
       category: 'Llamadas',
-      content: `Hola! mi nombre es [Nombre_Ejecutivo], asistente de Arriendos de SANTAMARIA. Recibí una llamada durante el fin de semana y no la pude contestar, en que lo puedo ayudar?`
+      content: `[Saludo]! Mi nombre es [Nombre_Ejecutivo], asistente de Arriendos de SANTAMARIA. Recibí una llamada durante el fin de semana y no la pude contestar, en que lo puedo ayudar?`
     },
     {
       id: '5',
       title: 'Propiedad no disponible',
       category: 'Otros',
-      content: `Hola! Lamentablemente esa propiedad ya no se encuentra disponible. Sin embargo, en los siguientes enlaces puedes revisar otras opciones actuales. Para consultar disponibilidad, me puedes escribir por este mismo medio:
+      content: `[Saludo]! Lamentablemente esa propiedad ya no se encuentra disponible. Sin embargo, en los siguientes enlaces puedes revisar otras opciones actuales. Para consultar disponibilidad, me puedes escribir por este mismo medio:
 
 *ARRIENDOS HASTA $350.000:*
 https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=0&Ubz_Id=0&Po_R_Id=8&Pr_Tipo_Id=8&Pr_Tipo_Operacion=2&Pr_Valor_Desde=0&Pr_Valor_Hasta=350000&Pr_Piezas_Desde=0
@@ -281,7 +292,7 @@ Sin ese mensaje, la visita no se considera confirmada.`
       id: '8',
       title: 'Formulario Publicación',
       category: 'Otros',
-      content: `¡Hola! ¿Cómo está? Para poder publicar su departamento a la brevedad, le pedimos que por favor nos ayude completando este breve formulario con las características de la propiedad:
+      content: `¡[Saludo]! ¿Cómo está? Para poder publicar su departamento a la brevedad, le pedimos que por favor nos ayude completando este breve formulario con las características de la propiedad:
 
 👉 https://docs.google.com/forms/d/e/1FAIpQLSeV8WU3J6c2CczZritzVDmkYOK8SjSQeLF_9O9T9HUZLITo3A/viewform?usp=header
 
