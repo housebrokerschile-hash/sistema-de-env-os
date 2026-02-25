@@ -276,6 +276,17 @@ https://www.santamaria.cl/PropiedadesListado.aspx?From=Search&Tipo=P&Pr_Privada=
 Su visita queda agendada únicamente cuando se le envía la dirección exacta y el nombre de la ejecutiva que lo atenderá. 
 
 Sin ese mensaje, la visita no se considera confirmada.`
+    },
+    {
+      id: '8',
+      title: 'Formulario Publicación',
+      category: 'Otros',
+      content: `¡Hola! ¿Cómo está? Para poder publicar su departamento a la brevedad, le pedimos que por favor nos ayude completando este breve formulario con las características de la propiedad:
+
+👉 https://docs.google.com/forms/d/e/1FAIpQLSeV8WU3J6c2CczZritzVDmkYOK8SjSQeLF_9O9T9HUZLITo3A/viewform?usp=header
+
+En cuanto lo responda, avanzamos con la publicación. ¡Quedo atento a cualquier duda!
+Saludos del equipo de Corredora SANTAMARÍA.`
     }
   ];
 
