@@ -11,7 +11,9 @@ import {
   Trash2,
   X,
   RotateCcw,
-  AlertTriangle
+  AlertTriangle,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
@@ -120,10 +122,11 @@ const SplashScreen = ({ onFinish }) => {
 
 const Button = ({ children, variant = 'primary', size = 'default', className = '', ...props }) => {
   const variants = {
-    primary: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50',
+    primary: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 border border-orange-400/20',
     secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm hover:shadow-md',
-    success: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50',
-    danger: 'bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/30'
+    success: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50 border border-green-400/20',
+    danger: 'bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/30',
+    whatsapp: 'bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 border border-emerald-400/20'
   };
   const sizes = { sm: 'px-3 py-1.5 text-sm', default: 'px-4 py-2.5', lg: 'px-6 py-3 text-lg' };
 
@@ -157,7 +160,7 @@ const Label = ({ children, className = '' }) => (
   </label>
 );
 
-const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete }) => {
+const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete, isFirst, isLast, onMoveUp, onMoveDown }) => {
   const [propertyLink, setPropertyLink] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
@@ -193,14 +196,25 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
       
       <div className="p-7 flex-1 space-y-5 relative z-10">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-extrabold text-lg text-gray-800 line-clamp-2 leading-tight pr-12" title={template.title}>
+          <h3 className="font-extrabold text-lg text-gray-800 line-clamp-2 leading-tight pr-20" title={template.title}>
             {template.title}
           </h3>
-          <div className="absolute top-5 right-5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border border-gray-100">
-            <button onClick={() => onEdit(template)} className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors" title="Editar">
+          <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-sm border border-gray-100 z-20">
+            {!isFirst && (
+              <button onClick={onMoveUp} className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors" title="Subir">
+                <ArrowUp className="h-4 w-4" />
+              </button>
+            )}
+            {!isLast && (
+              <button onClick={onMoveDown} className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors" title="Bajar">
+                <ArrowDown className="h-4 w-4" />
+              </button>
+            )}
+            {(!isFirst || !isLast) && <div className="w-px h-4 bg-gray-200 mx-1"></div>}
+            <button onClick={() => onEdit(template)} className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors" title="Editar">
               <Edit2 className="h-4 w-4" />
             </button>
-            <button onClick={() => onDelete(template)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Borrar">
+            <button onClick={() => onDelete(template)} className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Borrar">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
@@ -233,7 +247,7 @@ const TemplateCard = ({ template, executiveName, clientNumber, onEdit, onDelete 
       </div>
 
       <div className="p-5 bg-slate-50 border-t border-gray-100 grid grid-cols-1 gap-3 relative z-10">
-        <Button onClick={handleSendWhatsApp} className="w-full">
+        <Button variant="whatsapp" onClick={handleSendWhatsApp} className="w-full">
           <MessageCircle className="h-5 w-5 mr-2" /> Enviar por WhatsApp
         </Button>
         <Button variant={isCopied ? "success" : "secondary"} onClick={handleCopy} className="w-full">
@@ -255,12 +269,10 @@ export default function App() {
     return saved ? JSON.parse(saved) : defaultTemplates;
   });
 
-  // Estado del Modal (Crear/Editar)
+  // Modal y Formularios
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [formData, setFormData] = useState({ title: '', category: '', newCategory: '', content: '', color: 'orange' });
-  
-  // Estado Modal Borrar
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
@@ -317,6 +329,27 @@ export default function App() {
     toast.success('Mensaje eliminado');
   };
 
+  const moveTemplate = (templateId, direction, category) => {
+    setTemplates(prev => {
+      const newTemplates = [...prev];
+      const catItems = newTemplates.filter(t => t.category === category);
+      const currentIndexInCat = catItems.findIndex(t => t.id === templateId);
+      
+      if (direction === 'up' && currentIndexInCat > 0) {
+        const targetId = catItems[currentIndexInCat - 1].id;
+        const idx1 = newTemplates.findIndex(t => t.id === templateId);
+        const idx2 = newTemplates.findIndex(t => t.id === targetId);
+        [newTemplates[idx1], newTemplates[idx2]] = [newTemplates[idx2], newTemplates[idx1]];
+      } else if (direction === 'down' && currentIndexInCat < catItems.length - 1) {
+        const targetId = catItems[currentIndexInCat + 1].id;
+        const idx1 = newTemplates.findIndex(t => t.id === templateId);
+        const idx2 = newTemplates.findIndex(t => t.id === targetId);
+        [newTemplates[idx1], newTemplates[idx2]] = [newTemplates[idx2], newTemplates[idx1]];
+      }
+      return newTemplates;
+    });
+  };
+
   return (
     <>
       <SplashScreen onFinish={() => setShowContent(true)} />
@@ -366,8 +399,19 @@ export default function App() {
                       <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight">{category}</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {items.map(template => (
-                        <TemplateCard key={template.id} template={template} executiveName={executiveName} clientNumber={clientNumber} onEdit={openModal} onDelete={setDeleteConfirm} />
+                      {items.map((template, index) => (
+                        <TemplateCard 
+                          key={template.id} 
+                          template={template} 
+                          executiveName={executiveName} 
+                          clientNumber={clientNumber} 
+                          onEdit={openModal} 
+                          onDelete={setDeleteConfirm} 
+                          isFirst={index === 0}
+                          isLast={index === items.length - 1}
+                          onMoveUp={() => moveTemplate(template.id, 'up', category)}
+                          onMoveDown={() => moveTemplate(template.id, 'down', category)}
+                        />
                       ))}
                     </div>
                   </div>
