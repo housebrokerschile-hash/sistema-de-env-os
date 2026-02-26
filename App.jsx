@@ -45,7 +45,7 @@ const defaultTemplates = [
     title: 'Presentación Fernanda',
     category: 'Correos',
     color: 'purple',
-    content: `[Saludo]! ¿Cómo está? Soy Fernanda Yañez, de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
+    content: `[Saludo]! ¿Cómo está? Soy Fernanda Yañez, encargada del área de Arriendos de la Corredora SANTAMARÍA. A continuación, le enviaré el detalle de la propiedad por la que consulta.`
   },
   {
     id: '2',
