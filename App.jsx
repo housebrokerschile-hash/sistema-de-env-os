@@ -41,6 +41,13 @@ const defaultTemplates = [
     content: `[Saludo], mi nombre es Ana Victoria Diaz, encargada del área de Arriendos de la Corredora SANTAMARÍA.\n\nA continuación, le enviaré el detalle de la propiedad por la que consulta.`
   },
   {
+    id: '9',
+    title: 'Presentación Fernanda',
+    category: 'Correos',
+    color: 'purple',
+    content: `[Saludo]! ¿Cómo está? Soy Fernanda Yañez, de la corredora SANTAMARIA. Nos llegó un correo tuyo consultando por la siguiente propiedad:`
+  },
+  {
     id: '2',
     title: 'Coordinación y Requisitos',
     category: 'Correos',
